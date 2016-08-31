@@ -13,7 +13,8 @@ def generateRules(L, supportData, minSup=0.7): #L:存储着所有的频繁项集
                 # 三个及以上元素的集合
                 rulesFromConseq(freqSet, H1, supportData, bigRuleList, minSup)
             else:
-                # 两个元素的集合.freqSet:频繁项, H1:频繁项中的每一个元素组成的列表, supportData:所有候选项集的支持度集合, bigRuleList:存储挖掘出来的关联规则,A->B,B->A置信度这些数据, minSup:最小支持度
+                # 两个元素的集合.这两个元素是相对的,每个元素有可能是一个item集合,不然怎么算(A,B)->C的置信度
+                # freqSet:频繁项, H1:频繁项中的每一个元素组成的列表, supportData:所有候选项集的支持度集合, bigRuleList:存储挖掘出来的关联规则,A->B,B->A置信度这些数据, minSup:最小支持度
                 calcConf(freqSet, H1, supportData, bigRuleList, minSup)
     return bigRuleList
 
