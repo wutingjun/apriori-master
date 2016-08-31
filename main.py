@@ -12,5 +12,5 @@ if __name__=="__main__":
         i +=1
 
     print "minConf=0.7时："
-    rules = generateRules(L,suppData, minSup=0.7)
+    rules = generateRules(L,suppData, minConf=0.7)
     print rules

@@ -1,7 +1,7 @@
 #coding=utf-8
 
 from apriori import  aprioriGen
-def generateRules(L, supportData, minSup=0.7): #L:存储着所有的频繁项集 supportData:所有候选项集的支持度
+def generateRules(L, supportData, minConf=0.7): #L:存储着所有的频繁项集 supportData:所有候选项集的支持度
     bigRuleList = []
     for i in range(1, len(L)): #频繁1-项集没有什么可以挖掘的,挖掘都是从频繁2-项集开始
         for freqSet in L[i]:
@@ -9,36 +9,49 @@ def generateRules(L, supportData, minSup=0.7): #L:存储着所有的频繁项集
             H1 = [frozenset([item]) for item in freqSet]
             print L[i]
             print H1
+
+            #这个if-else语句可以合并,但是不合并更好理解,还是不合并吧
             if (i > 1):
                 # 三个及以上元素的集合
-                rulesFromConseq(freqSet, H1, supportData, bigRuleList, minSup)
+                rulesFromConseq(freqSet, H1, supportData, bigRuleList, minConf)
             else:
-                # 两个元素的集合.这两个元素是相对的,每个元素有可能是一个item集合,不然怎么算(A,B)->C的置信度
-                # freqSet:频繁项, H1:频繁项中的每一个元素组成的列表, supportData:所有候选项集的支持度集合, bigRuleList:存储挖掘出来的关联规则,A->B,B->A置信度这些数据, minSup:最小支持度
-                calcConf(freqSet, H1, supportData, bigRuleList, minSup)
+                # 两个元素的集合.
+                # 这两个元素是相对的,每个元素有可能是一个item集合,不然怎么算(A,B)->C的置信度
+                # freqSet:频繁项, H1:freqSet的频繁子项组成的频繁项集, supportData:所有候选项集的支持度集合, bigRuleList:存储挖掘出来的关联规则,A->B,B->A置信度这些数据, minConf:最小置信度
+                #这个函数有两个目的,1是求(freqSet-H1[i])->H1[i]置信度,2是剪枝掉不满足最小置信度的H1[i]
+                calcConf(freqSet, H1, supportData, bigRuleList, minConf)
     return bigRuleList
 
-def calcConf(freqSet, H, supportData, brl, minSup=0.7):
-    ''' 对候选规则集进行评估 '''
+def calcConf(freqSet, H, supportData, brl, minConf=0.7):
+    ''' 计算H[i]->freqSet-H[i]的置信度,并返回满足置信度的H[i] '''
     prunedH = []
     for conseq in H:
         conf = supportData[freqSet] / supportData[freqSet - conseq]
-        if conf >= minSup:
+        if conf >= minConf:
             print freqSet - conseq, '-->', conseq, 'conf:', conf
             brl.append((freqSet - conseq, conseq, conf))
             prunedH.append(conseq)
+    #其实这是一个剪枝过程,将所有满足置信度的conseq(K-项集)留下来,用于计算频繁k+1项集.这里用到了一个定理:如果某条规则并不满足最小可信度要求，那么该规则的所有子集也不会满足最小可信度要求
+    #这里变成了freqSet - conseq,(freqSet - conseq)->conseq不满足最小置信度要求,(freqSet - conseq)的子集也不满足最小置信度要求,只不过这里通过这种方式实现这个功能
     return prunedH
 
 def rulesFromConseq(freqSet, H, supportData, brl, minConf=0.7):
-    ''' 生成候选规则集 '''
+    # freqSet:频繁项, H:freqSet的频繁子项组成的频繁项集, supportData:所有候选项集的支持度集合, brl:存储挖掘出来的关联规则,A->B,B->A置信度这些数据, minConf:最小置信度
     m = len(H[0])
-    print m
-    if (len(freqSet) > (m + 1)):
-        Hmpl = aprioriGen(H, m + 1) #基于H中每一项的构建比自己多一项的频繁项集
-        Hmpl = calcConf(freqSet, Hmpl, supportData, brl, minConf) #筛选出满足置信度的频繁项
-        #从这里看出,对于频繁多项集的关联规则的生成是基于二项集的基础上完成的
-        if (len(Hmpl) > 1):
-            rulesFromConseq(freqSet, Hmpl, supportData, brl, minConf)
+    while (len(freqSet) > m):   #只有len(freqSet)>m时,在calcConf计算置信度时freqSet - conseq才不会为空,说明此时可以做子项之间的置信度
+        H= calcConf(freqSet, H, supportData, brl, minConf) #计算(freqSet-H[i])->H[i]的置信度,并返回满足置信度的H[i]
+        #如果H为空,这表明(freqSet-H[i])->H[i]均不满足最小置信度要求,也就是说(freqSet-H[i])子集也不满足最小置信度要求,停止循环
+        if (len(H)>1):
+            H=aprioriGen(H, m + 1) #基于H中每一项(m项集)的构建频繁m+1项集
+            m+=1
+        else:
+            break
+
+        #对于频繁5-项集来说,先计算所有计算所有频繁4-项->频繁1-项的置信度(如:(A,B,C,D)->(E),(A,B,C,E)->(D),...),并剪枝掉不满足置信度的频繁1项
+        #以频繁1项集生成频繁2项集,计算频繁3项->频繁2项的置信度(如:(A,B,C)->(D,E),(A,B,D)->(C,E),...),筛选出满足置信度的频繁2项,
+        #以频繁2项集生成频繁3项集,计算所有频繁2项->频繁3项的置信度(如:(A,B)->(C,D,E),(A,C)->(B,D,E),...),筛选出满足置信度的频繁3项,
+        #以频繁3项集生成频繁4项集,计算所有频繁1项->频繁4项的置信度(如:(A)->(B,C,D,E),(B)->(A,C,D,E),...),筛选出满足置信度的频繁4项,
+        #以频繁4项集生成频繁5项集,到5项集了,停止循环;同时,如果中间筛选出的H为空,这表明(freqSet-H[i])->H[i]均不满足最小置信度要求,也就是说(freqSet-H[i])子集也不满足最小置信度要求,停止循环
 
 
 
