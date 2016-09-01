@@ -10,6 +10,7 @@ if __name__=="__main__":
     for one in L:
         print "项数为 %s 的频繁项集：" % (i + 1), one,"\n"
         i +=1
+    print suppData
 
     print "minConf=0.7时："
     rules = generateRules(L,suppData, minConf=0.7)

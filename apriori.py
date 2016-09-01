@@ -22,8 +22,8 @@ def scanD(D,Ck,minSupport):
         support = ssCnt[key]/numItems
         if support >= minSupport:
             freqList.insert(0, key)
-        #构建支持的项集的字典
-        supportData[key] = support
+            #构建支持的项集的字典,之前是记录下所有项的支持度计算,感觉没有必要.挖掘频繁项集也是在频繁项集的基础上完成的
+            supportData[key] = support
     return freqList,supportData
 
 #Create Ck,CaprioriGen()的输人参数为频繁项集列表Lk-1与候选项集元素个数k，输出为Ck
