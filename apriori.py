@@ -58,5 +58,5 @@ def apriori(dataSet, minSupport=0.5):
         supportData.update(supK)
         L.append(Lk)
         k +=1
-    return L,supportData #L:所有的频繁项集 supportData:所有候选项集的支持度
+    return L,supportData #L:所有的频繁项集 supportData:所有频繁项集的支持度
 
