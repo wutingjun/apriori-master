@@ -2,25 +2,26 @@
 
 from apriori import  aprioriGen
 def generateRules(L, supportData, minConf=0.7): #L:存储着所有的频繁项集 supportData:所有候选项集的支持度
-    bigRuleList = []
+    relationRuleList = []    #用来存储产生的关联规则
     for i in range(1, len(L)): #频繁1-项集没有什么可以挖掘的,挖掘都是从频繁2-项集开始
         for freqSet in L[i]:
-            #freqSet是频繁k-项集中的一项,item是freqSet的每一个元素
+            # freqSet是频繁k-项集中的一项,item是freqSet的每一个元素
+            # 思路:对每一个频繁K(K>2)-项集中的每一项freqSet逐个挖掘满足支持度和置信度的关联规则.接下来就是如何从freqSet中找关联规则
             H1 = [frozenset([item]) for item in freqSet]
-            print L[i]
+            # print L[i]
             print H1
 
-            #这个if-else语句可以合并,但是不合并更好理解,还是不合并吧
+            # 这个if-else语句可以合并,但是不合并更好理解,还是不合并吧
             if (i > 1):
                 # 三个及以上元素的集合
-                rulesFromConseq(freqSet, H1, supportData, bigRuleList, minConf)
+                rulesFromConseq(freqSet, H1, supportData, relationRuleList, minConf)
             else:
                 # 两个元素的集合.
                 # 这两个元素是相对的,每个元素有可能是一个item集合,不然怎么算(A,B)->C的置信度
                 # freqSet:频繁项, H1:freqSet的频繁子项组成的频繁项集, supportData:所有候选项集的支持度集合, bigRuleList:存储挖掘出来的关联规则,A->B,B->A置信度这些数据, minConf:最小置信度
-                #这个函数有两个目的,1是求(freqSet-H1[i])->H1[i]置信度,2是剪枝掉不满足最小置信度的H1[i]
-                calcConf(freqSet, H1, supportData, bigRuleList, minConf)
-    return bigRuleList
+                # 这个函数有两个目的,1是求(freqSet-H1[i])->H1[i]置信度,2是剪枝掉不满足最小置信度的H1[i]
+                calcConf(freqSet, H1, supportData, relationRuleList, minConf)
+    return relationRuleList
 
 def calcConf(freqSet, H, supportData, brl, minConf=0.7):
     ''' 计算H[i]->freqSet-H[i]的置信度,并返回满足置信度的H[i] '''
