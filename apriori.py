@@ -6,14 +6,14 @@ import loadData
 def scanD(D,Ck,minSupport):
     ssCnt = {}#存储Ck每一个项在D中出现的次数
     for tid in D:
-        for can in Ck:
-            #issubset：表示如果集合can中的每一元素都在tid中则返回true
-            if can.issubset(tid):
-                #统计各个集合can出现的次数，存入ssCnt字典中，字典的key是集合，value是统计出现的次数
-                if not ssCnt.has_key(can):
-                    ssCnt[can] = 1
+        for items in Ck:
+            #issubset：判断一个集合是否是另一个的子集,如果集合items中的每一项都在tid中则返回true
+            if items.issubset(tid):
+                #统计各个集合items出现的次数，存入ssCnt字典中，字典的key是集合，value是统计出现的次数
+                if not ssCnt.has_key(items):
+                    ssCnt[items] = 1
                 else:
-                    ssCnt[can] += 1
+                    ssCnt[items] += 1
     numItems = float(len(D))
     freqList = []
     supportData = {}
@@ -30,6 +30,7 @@ def scanD(D,Ck,minSupport):
 #之前一直在考虑对LK[i],Lk[j]取前k-1项排序后比较是否合理.[A,C,B],[A,B,D]不会连接的,是否会漏掉[A,B,C,D]这个频繁项([A,B,C],[A,B,D]连接形成的)?
 #不会的.因为[A,B,C,D]是频繁项集,一定会出现[A,C,D]是频繁项集,所以后面还是会有[A,C,D]的,不用担心顺序影响到频繁项集的生成.只要排序遵循的是一个规则就没有问题.
 def aprioriGen(Lk,k):
+    # Lk是数据的频繁项集(频繁k-1项集),只不过这里不方便表示,本来应该表示成Lk-1的,k:想要生成频繁项集的项数
     retList = []
     lenLk = len(Lk)
     for i in range(lenLk):
@@ -53,6 +54,7 @@ def apriori(dataSet, minSupport=0.5):
     #若两个项集的长度为k - 1,则必须前k-2项相同才可连接，即求并集，所以[:k-2]的实际作用为取列表的前k-1个元素
     k = 2
     while(len(L[k-2]) > 0):
+        # L[k-2]其实是频繁k-1项集
         Ck = aprioriGen(L[k-2], k)
         Lk,supK = scanD(D,Ck, minSupport)
         supportData.update(supK)

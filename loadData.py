@@ -1,5 +1,16 @@
 #coding=utf-8
 
+def loadSimpleData():
+    simpDat=[]
+    fileIn=open('itemsSet.txt')
+    for line in fileIn.readlines():
+        lineArr=line.strip().split(',')
+        simpDat.append(lineArr)
+    fileIn.close()
+
+    return simpDat
+
+
 def createC1(dataSet):
     C1=[] #C1为大小为1的项的集合
     for tid in dataSet:
