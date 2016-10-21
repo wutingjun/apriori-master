@@ -14,7 +14,8 @@ if __name__=="__main__":
         i +=1
     print suppData
 
-    print "minConf=0.7时："
+    print '-----------------------------------------------------------------'
+    print "minConf=0.7时,挖掘出来的关联规则如下："
     # 挖掘整个频繁项集的关联规则
     # rules = generateRules(L,suppData, minConf=0.7)
     # print rules
