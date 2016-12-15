@@ -1,20 +1,22 @@
 #coding=utf-8
 
-def loadSimpleData():
+import pandas as pd
+
+def loadSimpleData(filename):
     simpDat=[]
-    fileIn=open('itemsSet.txt')
-    for line in fileIn.readlines():
-        lineArr=line.strip().split(',')
-        simpDat.append(lineArr)
-    fileIn.close()
+
+    df=pd.read_csv(filename,sep='\t')
+    for index,row in df.iterrows():
+        itemsList=row['items'].strip().split(',')
+        simpDat.append(itemsList)
 
     return simpDat
 
 
 def createC1(dataSet):
-    C1=[] #C1为大小为1的项的集合
-    for tid in dataSet:
-        for item in tid:
+    C1=[] #C1为1项的集合
+    for ele in dataSet:
+        for item in ele:
             if not [item] in C1: #遍历数据集中的每一条交易
                 C1.append([item]) #遍历每一条交易中的每个商品
     C1.sort()
