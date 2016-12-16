@@ -1,11 +1,11 @@
 #coding=utf-8
 
 from apriori import  aprioriGen
-def kgenerateRules(Lk,k,supportData, minConf=0.7): #Lk:待挖掘的频繁k-项集 supportData:所有候选项集的支持度
+def kgenerateRules(Lk,k,supportData, minConf=0.7): #Lk:待挖掘的频繁k-项集 supportData:频繁的支持度
     relationRuleList = []    #用来存储产生的关联规则
 
     for freq_k_item in Lk:
-        # freq_k_item是频繁k项,item是freq_k_item的一个项
+        # freq_k_item是频繁k项,item是freq_k_item的一个项(元素)
         # 思路:对每一个频繁K(K>2)项中的每一项item逐个挖掘满足支持度和置信度的关联规则.具体过程见50～54行
         H1=[frozenset([item]) for item in freq_k_item]
         print H1
@@ -47,7 +47,7 @@ def rulesFromConseq(freq_k_item, H, supportData, brl, minConf=0.7):
         else:
             break
 
-        #对于频繁5-项集来说,先计算所有计算所有频繁4-项->频繁1-项的置信度(如:(A,B,C,D)->(E),(A,B,C,E)->(D),...),并剪枝掉不满足minConf的conseq(1项)，原理见34～35行解释,
+        #对于频繁5-项(ABCDE)来说,首先将频繁5项拆成5个1项(A),(B),(C),(D),(E)，而后计算所有计算所有频繁4-项->频繁1-项的置信度(如:(A,B,C,D)->(E),(A,B,C,E)->(D),...),并剪枝掉不满足minConf的1项(conseq)，原理见34～35行解释,
         #以频繁1项生成频繁2项集,计算频繁3项->频繁2项的置信度(如:(A,B,C)->(D,E),(A,B,D)->(C,E),...),并剪枝掉不满足minConf的conseq(2项)，原理见34～35行解释,
         #以频繁2项生成频繁3项集,计算所有频繁2项->频繁3项的置信度(如:(A,B)->(C,D,E),(A,C)->(B,D,E),...),并剪枝掉不满足minConf的conseq(3项)，原理见34～35行解释,
         #以频繁3项生成频繁4项集,计算所有频繁1项->频繁4项的置信度(如:(A)->(B,C,D,E),(B)->(A,C,D,E),...),并剪枝掉不满足minConf的conseq(4项)，原理见34～35行解释,
