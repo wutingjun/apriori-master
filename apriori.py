@@ -26,11 +26,21 @@ def scanD(D,Ck,minSupport):
             supportData[key] = support
     return freqListK,supportData
 
+# 剪枝过程
+def prune(Lk,item_k):
+    flag=True
+    for item in item_k:
+        sub_item=item_k-frozenset(item)
+        if sub_item not in Lk:
+            flag=False
+            break
+    return flag
+
 #Create Ck,CaprioriGen()的输人参数为频繁项集列表Lk-1与候选项集元素长度k，输出为Ck
 #之前一直在考虑对LK[i],Lk[j]取前k-1项排序后比较是否合理.[A,D,E],[A,B,D]不会连接的,是否会漏掉[A,B,D,E]这个频繁项([A,B,E],[A,B,D]连接形成的)?
 #不会的.因为[A,B,D,E]是频繁项集,一定会出现[A,B,E]是频繁项集,若不出现[A,B,D,E]非频繁。所以,不用担心顺序影响到频繁项集的生成.只要排序遵循的是一个规则就没有问题.
 def aprioriGen(Lk,k):
-    # Lk是数据的频繁项集(频繁k-1项集),只不过这里不方便表示,本来应该表示成Lk-1的,k:想要生成频繁项集的项数
+    # Lk是频繁k-1项集,只不过这里不方便表示,本来应该表示成Lk-1的,k:想要生成频繁项集的项数
     retList = []
     lenLk = len(Lk)
     for i in range(lenLk):
@@ -41,7 +51,10 @@ def aprioriGen(Lk,k):
             L1.sort()
             L2.sort()
             if L1 == L2:
-                retList.append(Lk[i] | Lk[j])
+                item_k=Lk[i] | Lk[j]
+                # 剪枝
+                if prune(Lk,item_k):
+                    retList.append(item_k)
 
     return retList
 
