@@ -31,8 +31,9 @@ def calcConf(freq_k_item, H, supportData, brl, minConf=0.7):
             print freq_k_item - conseq, '-->', conseq, 'conf:', conf
             brl.append((freq_k_item - conseq, conseq, conf))
             prunedH.append(conseq)
-    # 其实这也相当于一个剪枝过程,例如:ABC->D不满足minConf要求，即ABCD/ABC<minConf,这样AB->CD,AC->BD,BC->AD也不会满足minConf要求,因为ABCD/(AB,AC,BC)<ABCD/ABC<minConf
-    # 若ABCD/ABC>minConf,这三个有可能满足minConf要求，所以需要加入prunedH，然后生成*D,再判断。这才是为什么要prunedH.append(conseq)这一句正确的解释，之前的理解不对
+    # 计算频繁4项集的强规则先计算频繁3项->频繁1项，再计算2项->2项，最后计算1项->3项。
+    # 因为例如:ABC->D不满足minConf要求，即ABCD/ABC<minConf,这样AB->CD,AC->BD,BC->AD也不会满足minConf要求,因为ABCD/(AB,AC,BC)<ABCD/ABC<minConf
+    # 若ABCD/ABC>minConf,这三个有可能满足minConf要求，所以需要加入prunedH，然后生成*D,再判断,这其实也是一个剪枝过程。这才是为什么要prunedH.append(conseq)这一句正确的解释，之前的理解不对
     return prunedH
 
 def rulesFromConseq(freq_k_item, H, supportData, brl, minConf=0.7):
